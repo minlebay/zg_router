@@ -5,15 +5,13 @@ import (
 )
 
 type Config struct {
-	ListenAddress string `yaml:"GRPC_SERVER_LISTEN_ADDRESS"`
+	ListenAddress string `yaml:"listen_address"`
 }
 
 func NewServerConfig(provider cfg.Provider) (*Config, error) {
-	var config Config
+	config := Config{}
 
-	v := provider.Get("GRPC_SERVER_LISTEN_ADDRESS")
-	var err = v.Populate(&config)
-	if err != nil {
+	if err := provider.Get("grpc_server").Populate(&config); err != nil {
 		return nil, err
 	}
 
