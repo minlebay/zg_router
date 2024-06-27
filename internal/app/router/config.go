@@ -6,8 +6,11 @@ type Config struct {
 }
 
 func NewRouterConfig(provider config.Provider) (*Config, error) {
+
 	var config Config
-	err := provider.Get("router").Populate(&config)
+	return &config, nil
+
+	err := provider.Get("processing").Populate(&config)
 	if err != nil {
 		return nil, err
 	}

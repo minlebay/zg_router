@@ -1,4 +1,4 @@
-package router
+package grpc_client
 
 import (
 	"context"
@@ -9,27 +9,27 @@ import (
 func NewModule() fx.Option {
 
 	return fx.Module(
-		"router",
+		"client",
 		fx.Provide(
-			NewRouterConfig,
-			NewRouter,
+			NewClientConfig,
+			NewClient,
 		),
 		fx.Invoke(
-			func(lc fx.Lifecycle, r *Router) {
+			func(lc fx.Lifecycle, g *Client) {
 				lc.Append(fx.Hook{
 					OnStart: func(ctx context.Context) error {
-						go r.StartRouter(ctx)
+						go g.StartClient(ctx)
 						return nil
 					},
 					OnStop: func(ctx context.Context) error {
-						r.StopRouter(ctx)
+						g.StopClient(ctx)
 						return nil
 					},
 				})
 			},
 		),
 		fx.Decorate(func(log *zap.Logger) *zap.Logger {
-			return log.Named("router")
+			return log.Named("client")
 		}),
 	)
 }
