@@ -35,21 +35,20 @@ func NewClient(logger *zap.Logger, config *Config) *Client {
 }
 
 func (c *Client) StartClient(ctx context.Context) {
+	go func() {
+		for _, server := range c.Config.ProcessingServersList {
+			grpcTarget := fmt.Sprintf("%s", server)
 
-	for _, server := range c.Config.ProcessingServersList {
-		grpcTarget := fmt.Sprintf("%s", server)
+			conn, err := grpc.NewClient(grpcTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
+			if err != nil {
+				c.Logger.Fatal(err.Error())
+			}
 
-		conn, err := grpc.NewClient(grpcTarget, grpc.WithTransportCredentials(insecure.NewCredentials()))
-		if err != nil {
-			c.Logger.Fatal(err.Error())
+			c.ConnectionPool[server] = conn
+			c.GrpcClientPool[server] = mrc.NewMessageRouterClient(conn)
+			c.ActiveConnections[server] = 0
 		}
 
-		c.ConnectionPool[server] = conn
-		c.GrpcClientPool[server] = mrc.NewMessageRouterClient(conn)
-		c.ActiveConnections[server] = 0
-	}
-
-	go func() {
 		for {
 			select {
 			case <-c.Done:
@@ -76,7 +75,6 @@ func (c *Client) SendMessage(ctx context.Context, msg *mrc.Message, server strin
 		c.Logger.Error("server not found")
 		return
 	} else {
-		_ = srv
 		c.ConnectionsLock.Lock()
 		c.ActiveConnections[server] = c.ActiveConnections[server] + 1
 		c.Logger.Info("connections on servers", zap.Any("connections", c.ActiveConnections))

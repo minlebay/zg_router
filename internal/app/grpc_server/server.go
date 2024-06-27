@@ -31,18 +31,20 @@ func NewServer(logger *zap.Logger, config *Config, router *r.Router) *Server {
 }
 
 func (s *Server) StartServer(ctx context.Context) {
-	listener, err := net.Listen("tcp", s.Config.ListenAddress)
-	if err != nil {
-		s.Logger.Fatal(err.Error())
-	}
+	go func() {
+		listener, err := net.Listen("tcp", s.Config.ListenAddress)
+		if err != nil {
+			s.Logger.Fatal(err.Error())
+		}
 
-	router.RegisterMessageRouterServer(s.GRPCServer, s)
+		router.RegisterMessageRouterServer(s.GRPCServer, s)
 
-	if err = s.GRPCServer.Serve(listener); err != nil {
-		s.Logger.Fatal(err.Error())
-	}
+		if err = s.GRPCServer.Serve(listener); err != nil {
+			s.Logger.Fatal(err.Error())
+		}
 
-	s.Logger.Info("Server started at address " + s.Config.ListenAddress)
+		s.Logger.Info("Server started at address " + s.Config.ListenAddress)
+	}()
 }
 
 func (r *Server) StopServer(ctx context.Context) {
