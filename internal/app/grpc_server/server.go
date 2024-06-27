@@ -30,7 +30,7 @@ func NewServer(logger *zap.Logger, config *Config, router *r.Router) *Server {
 	}
 }
 
-func (s *Server) StartServer() {
+func (s *Server) StartServer(ctx context.Context) {
 	listener, err := net.Listen("tcp", s.Config.ListenAddress)
 	if err != nil {
 		s.Logger.Fatal(err.Error())
@@ -45,7 +45,7 @@ func (s *Server) StartServer() {
 	s.Logger.Info("Server started at address " + s.Config.ListenAddress)
 }
 
-func (r *Server) StopServer() {
+func (r *Server) StopServer(ctx context.Context) {
 	r.wg.Wait()
 	r.GRPCServer.Stop()
 	r.Logger.Info("Server stopped")

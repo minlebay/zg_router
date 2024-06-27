@@ -1,7 +1,6 @@
 package grpc_client
 
 import (
-	"context"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -16,16 +15,7 @@ func NewModule() fx.Option {
 		),
 		fx.Invoke(
 			func(lc fx.Lifecycle, g *Client) {
-				lc.Append(fx.Hook{
-					OnStart: func(ctx context.Context) error {
-						go g.StartClient(ctx)
-						return nil
-					},
-					OnStop: func(ctx context.Context) error {
-						g.StopClient(ctx)
-						return nil
-					},
-				})
+				lc.Append(fx.StartStopHook(g.StartClient, g.StopClient))
 			},
 		),
 		fx.Decorate(func(log *zap.Logger) *zap.Logger {

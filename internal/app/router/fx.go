@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -16,16 +15,7 @@ func NewModule() fx.Option {
 		),
 		fx.Invoke(
 			func(lc fx.Lifecycle, r *Router) {
-				lc.Append(fx.Hook{
-					OnStart: func(ctx context.Context) error {
-						go r.StartRouter(ctx)
-						return nil
-					},
-					OnStop: func(ctx context.Context) error {
-						r.StopRouter(ctx)
-						return nil
-					},
-				})
+				lc.Append(fx.StartStopHook(r.StartRouter, r.StopRouter))
 			},
 		),
 		fx.Decorate(func(log *zap.Logger) *zap.Logger {
