@@ -42,8 +42,6 @@ func (s *Server) StartServer(ctx context.Context) {
 		if err = s.GRPCServer.Serve(listener); err != nil {
 			s.Logger.Fatal(err.Error())
 		}
-
-		s.Logger.Info("Server started at address " + s.Config.ListenAddress)
 	}()
 }
 
