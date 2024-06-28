@@ -1,0 +1,22 @@
+version: '3.8'
+
+networks:
+  local-net:
+    external: true
+
+services:
+  zg_router:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: zg_router
+    # ports:
+    #   - "8888:8888"
+    #   - "50051:50051"
+    env_file:
+      - .env-docker
+    networks:
+      - local-net  
+    volumes:
+      - .:/app
+    restart: unless-stopped
