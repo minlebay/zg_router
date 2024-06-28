@@ -79,7 +79,7 @@ func (c *Client) SendMessage(ctx context.Context, msg *mrc.Message, server strin
 		c.ActiveConnections[server] = c.ActiveConnections[server] + 1
 		c.Logger.Info("connections on servers", zap.Any("connections", c.ActiveConnections))
 		c.ConnectionsLock.Unlock()
-		_, err := srv.ReceiveMessage(context.Background(), msg)
+		resp, err := srv.ReceiveMessage(context.Background(), msg)
 		if err != nil {
 			c.Logger.Error("error sending message: ", zap.Error(err))
 			return
@@ -91,7 +91,7 @@ func (c *Client) SendMessage(ctx context.Context, msg *mrc.Message, server strin
 		c.ConnectionsLock.Lock()
 		c.ActiveConnections[server] = c.ActiveConnections[server] - 1
 		c.ConnectionsLock.Unlock()
-		c.Logger.Info("message sent: ", zap.Any("message", msg.Uuid))
+		c.Logger.Info("message sent", zap.Bool("success", resp.Success))
 	}
 }
 

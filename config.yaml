@@ -8,6 +8,4 @@ grpc_server:
 
 processing:
   processing_servers_list:
-    - "localhost:50052"
-    - "localhost:50053"
-    - "localhost:50054"
+    - ${GRPC_SERVER_PROCESSING_ADDRESS}
