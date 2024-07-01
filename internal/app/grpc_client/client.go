@@ -9,14 +9,14 @@ import (
 	"math"
 	"sync"
 	"time"
-	mrc "zg_router/pkg/message_v1/router"
+	"zg_router/pkg/message_v1"
 )
 
 type Client struct {
 	Done              chan struct{}
 	Logger            *zap.Logger
 	Config            *Config
-	GrpcClientPool    map[string]mrc.MessageRouterClient
+	GrpcClientPool    map[string]message.MessageRouterClient
 	ConnectionPool    map[string]*grpc.ClientConn
 	ActiveConnections map[string]int
 	ConnectionsLock   sync.Mutex
@@ -28,7 +28,7 @@ func NewClient(logger *zap.Logger, config *Config) *Client {
 		Done:              make(chan struct{}),
 		Logger:            logger,
 		Config:            config,
-		GrpcClientPool:    make(map[string]mrc.MessageRouterClient),
+		GrpcClientPool:    make(map[string]message.MessageRouterClient),
 		ConnectionPool:    make(map[string]*grpc.ClientConn),
 		ActiveConnections: make(map[string]int),
 	}
@@ -45,7 +45,7 @@ func (c *Client) StartClient(ctx context.Context) {
 			}
 
 			c.ConnectionPool[server] = conn
-			c.GrpcClientPool[server] = mrc.NewMessageRouterClient(conn)
+			c.GrpcClientPool[server] = message.NewMessageRouterClient(conn)
 			c.ActiveConnections[server] = 0
 		}
 
@@ -69,7 +69,7 @@ func (c *Client) StopClient(ctx context.Context) {
 	c.Logger.Info("Client stopped")
 }
 
-func (c *Client) SendMessage(ctx context.Context, msg *mrc.Message, server string) {
+func (c *Client) SendMessage(ctx context.Context, msg *message.Message, server string) {
 
 	if srv, ok := c.GrpcClientPool[server]; !ok {
 		c.Logger.Error("server not found")

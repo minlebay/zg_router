@@ -8,20 +8,20 @@ import (
 	"net"
 	"sync"
 	"time"
-	r "zg_router/internal/app/router"
-	"zg_router/pkg/message_v1/router"
+	"zg_router/internal/app/router"
+	"zg_router/pkg/message_v1"
 )
 
 type Server struct {
 	Logger *zap.Logger
 	Config *Config
-	router.UnimplementedMessageRouterServer
-	Router     *r.Router
+	message.UnimplementedMessageRouterServer
+	Router     *router.Router
 	GRPCServer *grpc.Server
 	wg         sync.WaitGroup
 }
 
-func NewServer(logger *zap.Logger, config *Config, router *r.Router) *Server {
+func NewServer(logger *zap.Logger, config *Config, router *router.Router) *Server {
 	return &Server{
 		Logger:     logger,
 		Config:     config,
@@ -37,7 +37,7 @@ func (s *Server) StartServer(ctx context.Context) {
 			s.Logger.Fatal(err.Error())
 		}
 
-		router.RegisterMessageRouterServer(s.GRPCServer, s)
+		message.RegisterMessageRouterServer(s.GRPCServer, s)
 
 		if err = s.GRPCServer.Serve(listener); err != nil {
 			s.Logger.Fatal(err.Error())
@@ -45,15 +45,15 @@ func (s *Server) StartServer(ctx context.Context) {
 	}()
 }
 
-func (r *Server) StopServer(ctx context.Context) {
-	r.wg.Wait()
-	r.GRPCServer.Stop()
-	r.Logger.Info("Server stopped")
+func (s *Server) StopServer(ctx context.Context) {
+	s.wg.Wait()
+	s.GRPCServer.Stop()
+	s.Logger.Info("Server stopped")
 }
 
-func (s *Server) ReceiveMessage(ctx context.Context, m *router.Message) (*router.Response, error) {
+func (s *Server) ReceiveMessage(ctx context.Context, m *message.Message) (*message.Response, error) {
 
-	go func(m *router.Message) {
+	go func(m *message.Message) {
 		s.wg.Add(1)
 		defer s.wg.Done()
 
@@ -63,7 +63,7 @@ func (s *Server) ReceiveMessage(ctx context.Context, m *router.Message) (*router
 		}
 	}(m)
 
-	resp := router.Response{
+	resp := message.Response{
 		Success: true,
 		Message: fmt.Sprintf("message received %v", time.Now()),
 	}

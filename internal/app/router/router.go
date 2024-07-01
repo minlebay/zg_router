@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 	"zg_router/internal/app/grpc_client"
-	"zg_router/pkg/message_v1/router"
+	"zg_router/pkg/message_v1"
 )
 
 type Router struct {
@@ -45,7 +45,7 @@ func (r *Router) StopRouter(ctx context.Context) {
 	r.Logger.Info("Router stopped")
 }
 
-func (r *Router) Route(ctx context.Context, msg *router.Message) error {
+func (r *Router) Route(ctx context.Context, msg *message.Message) error {
 
 	server := r.Client.GetLeastLoadedServer()
 	if server == "" {
