@@ -19,7 +19,7 @@ func NewModule() fx.Option {
 			},
 		),
 		fx.Decorate(func(log *zap.Logger) *zap.Logger {
-			return log.Named("server")
+			return log.Named("router_server")
 		}),
 	)
 }

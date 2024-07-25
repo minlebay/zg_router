@@ -9,3 +9,6 @@ grpc_server:
 processing:
   processing_servers_list:
     - ${GRPC_SERVER_PROCESSING_ADDRESS}
+
+logstash:
+  url: ${LOGSTASH_URL}
