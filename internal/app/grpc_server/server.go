@@ -3,12 +3,15 @@ package grpc_server
 import (
 	"context"
 	"fmt"
+	grpcprometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"net"
 	"sync"
 	"time"
 	"zg_router/internal/app/router"
+	"zg_router/internal/app/telemetry"
 	"zg_router/pkg/message_v1"
 )
 
@@ -18,26 +21,36 @@ type Server struct {
 	message.UnimplementedMessageRouterServer
 	Router     *router.Router
 	GRPCServer *grpc.Server
+	Metrics    *telemetry.Metrics
 	wg         sync.WaitGroup
 }
 
-func NewServer(logger *zap.Logger, config *Config, router *router.Router) *Server {
+func NewServer(logger *zap.Logger, config *Config, router *router.Router, metrics *telemetry.Metrics) *Server {
 	return &Server{
-		Logger:     logger,
-		Config:     config,
-		Router:     router,
-		GRPCServer: grpc.NewServer(),
+		Logger:  logger,
+		Config:  config,
+		Router:  router,
+		Metrics: metrics,
 	}
 }
 
 func (s *Server) StartServer(ctx context.Context) {
 	go func() {
+
+		reg := prometheus.NewRegistry()
+		grpcMetrics := grpcprometheus.NewServerMetrics()
+
+		s.GRPCServer = grpc.NewServer(
+			grpc.StreamInterceptor(grpcMetrics.StreamServerInterceptor()),
+			grpc.UnaryInterceptor(grpcMetrics.UnaryServerInterceptor()),
+		)
+		message.RegisterMessageRouterServer(s.GRPCServer, s)
+		reg.MustRegister(grpcMetrics, s.Metrics.RequestCounter)
+
 		listener, err := net.Listen("tcp", s.Config.ListenAddress)
 		if err != nil {
 			s.Logger.Fatal(err.Error())
 		}
-
-		message.RegisterMessageRouterServer(s.GRPCServer, s)
 
 		if err = s.GRPCServer.Serve(listener); err != nil {
 			s.Logger.Fatal(err.Error())
@@ -67,5 +80,7 @@ func (s *Server) ReceiveMessage(ctx context.Context, m *message.Message) (*messa
 		Success: true,
 		Message: fmt.Sprintf("message received %v", time.Now()),
 	}
+	s.Metrics.IncrementRequestCounter()
+
 	return &resp, nil
 }

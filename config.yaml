@@ -1,7 +1,6 @@
-telemetry:
-  enabled: true
-  interval: 10
-  address: localhost:8888
+prometheus:
+  #  url: ${PROMETHEUS_URL}
+  url: localhost:21123
 
 grpc_server:
   listen_address: ${GRPC_SERVER_LISTEN_ADDRESS}

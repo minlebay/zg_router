@@ -6,23 +6,30 @@ import (
 	"sync"
 	"time"
 	"zg_router/internal/app/grpc_client"
+	"zg_router/internal/app/telemetry"
 	"zg_router/pkg/message_v1"
 )
 
 type Router struct {
-	Done   chan struct{}
-	Logger *zap.Logger
-	Config *Config
-	Client *grpc_client.Client
-	wg     sync.WaitGroup
+	Done    chan struct{}
+	Logger  *zap.Logger
+	Config  *Config
+	Client  *grpc_client.Client
+	Metrics *telemetry.Metrics
+	wg      sync.WaitGroup
 }
 
-func NewRouter(logger *zap.Logger, config *Config, client *grpc_client.Client) *Router {
+func NewRouter(
+	logger *zap.Logger,
+	config *Config,
+	client *grpc_client.Client,
+	metrics *telemetry.Metrics) *Router {
 	return &Router{
-		Done:   make(chan struct{}),
-		Logger: logger,
-		Config: config,
-		Client: client,
+		Done:    make(chan struct{}),
+		Logger:  logger,
+		Config:  config,
+		Client:  client,
+		Metrics: metrics,
 	}
 }
 
