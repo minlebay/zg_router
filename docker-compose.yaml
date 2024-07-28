@@ -13,7 +13,9 @@ services:
     env_file:
       - .env-docker
     networks:
-      - local-net  
+      - local-net
+    ports:
+      - "21123:21123"
     volumes:
       - .:/app
     restart: unless-stopped

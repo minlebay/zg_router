@@ -1,6 +1,5 @@
 prometheus:
-  #  url: ${PROMETHEUS_URL}
-  url: localhost:21123
+  url: ${PROMETHEUS_URL}
 
 grpc_server:
   listen_address: ${GRPC_SERVER_LISTEN_ADDRESS}
