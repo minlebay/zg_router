@@ -2,7 +2,7 @@
 
 # Router Component
 
-The Router component is a part of the Message Generator and Router Project. It receives messages from the generator and routes them to various processing servers using gRPC.
+The Router component is a part of the ZmeyGorynych Project. It receives messages from the generator and routes them to various processing servers using gRPC.
 
 ## Components
 
