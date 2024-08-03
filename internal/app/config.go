@@ -25,11 +25,6 @@ func NewConfig() (ResultConfig, error) {
 		return ResultConfig{}, err
 	}
 
-	var yamlConfig map[interface{}]interface{}
-	if err = yamlProvider.Get(config.Root).Populate(&yamlConfig); err != nil {
-		return ResultConfig{}, err
-	}
-
 	config := Config{
 		Name: "default",
 	}
