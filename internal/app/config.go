@@ -19,7 +19,10 @@ type ResultConfig struct {
 }
 
 func NewConfig() (ResultConfig, error) {
-	yamlProvider, err := config.NewYAML(config.File("config.yaml"))
+	yamlProvider, err := config.NewYAML(
+		config.File("config.yaml"),
+		config.Expand(os.LookupEnv),
+	)
 	if err != nil {
 		return ResultConfig{}, err
 	}
@@ -29,24 +32,16 @@ func NewConfig() (ResultConfig, error) {
 		return ResultConfig{}, err
 	}
 
-	stringMap := convertMapKeysToStrings(yamlConfig)
-	replaceEnvVariables(stringMap)
-
-	provider, err := config.NewYAML(config.Static(stringMap))
-	if err != nil {
-		return ResultConfig{}, err
-	}
-
 	config := Config{
 		Name: "default",
 	}
 
-	if err = provider.Get("app").Populate(&config); err != nil {
+	if err = yamlProvider.Get("app").Populate(&config); err != nil {
 		return ResultConfig{}, err
 	}
 
 	return ResultConfig{
-		Provider: provider,
+		Provider: yamlProvider,
 		Config:   config,
 	}, nil
 }
