@@ -1,12 +1,12 @@
 prometheus:
-  url: ${PROMETHEUS_URL}
+  url: ${PROMETHEUS_URL:localhost:21123}
 
 grpc_server:
-  listen_address: ${GRPC_SERVER_LISTEN_ADDRESS}
+  listen_address: ${GRPC_SERVER_LISTEN_ADDRESS:localhost:50051}
 
 processing:
   processing_servers_list:
-    - ${GRPC_SERVER_PROCESSING_ADDRESS}
+    - ${GRPC_SERVER_PROCESSING_ADDRESS:localhost:50052}
 
 logstash:
-  url: ${LOGSTASH_URL}
+  url: ${LOGSTASH_URL:http://localhost:5000}
