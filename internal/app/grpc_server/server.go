@@ -34,7 +34,7 @@ func NewServer(logger *zap.Logger, config *Config, router *router.Router, metric
 	}
 }
 
-func (s *Server) StartServer(ctx context.Context) {
+func (s *Server) StartServer() {
 	go func() {
 
 		reg := prometheus.NewRegistry()
@@ -58,7 +58,7 @@ func (s *Server) StartServer(ctx context.Context) {
 	}()
 }
 
-func (s *Server) StopServer(ctx context.Context) {
+func (s *Server) StopServer() {
 	s.wg.Wait()
 	s.GRPCServer.Stop()
 	s.Logger.Info("Server stopped")
@@ -70,7 +70,7 @@ func (s *Server) ReceiveMessage(ctx context.Context, m *message.Message) (*messa
 		s.wg.Add(1)
 		defer s.wg.Done()
 
-		err := s.Router.Route(ctx, m)
+		err := s.Router.Route(m)
 		if err != nil {
 			s.Logger.Error(err.Error())
 		}

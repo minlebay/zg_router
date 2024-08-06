@@ -25,16 +25,16 @@ func NewConfig() (ResultConfig, error) {
 		return ResultConfig{}, err
 	}
 
-	config := Config{
+	cfg := Config{
 		Name: "default",
 	}
 
-	if err = yamlProvider.Get("app").Populate(&config); err != nil {
+	if err = yamlProvider.Get("app").Populate(&cfg); err != nil {
 		return ResultConfig{}, err
 	}
 
 	return ResultConfig{
 		Provider: yamlProvider,
-		Config:   config,
+		Config:   cfg,
 	}, nil
 }

@@ -1,7 +1,6 @@
 package router
 
 import (
-	"context"
 	"go.uber.org/zap"
 	"sync"
 	"time"
@@ -33,7 +32,7 @@ func NewRouter(
 	}
 }
 
-func (r *Router) StartRouter(ctx context.Context) {
+func (r *Router) StartRouter() {
 	go func() {
 		for {
 			select {
@@ -46,13 +45,13 @@ func (r *Router) StartRouter(ctx context.Context) {
 	}()
 }
 
-func (r *Router) StopRouter(ctx context.Context) {
+func (r *Router) StopRouter() {
 	r.wg.Wait()
 	r.Done <- struct{}{}
 	r.Logger.Info("Router stopped")
 }
 
-func (r *Router) Route(ctx context.Context, msg *message.Message) error {
+func (r *Router) Route(msg *message.Message) error {
 
 	server := r.Client.GetLeastLoadedServer()
 	if server == "" {
@@ -63,7 +62,7 @@ func (r *Router) Route(ctx context.Context, msg *message.Message) error {
 	go func() {
 		r.wg.Add(1)
 		defer r.wg.Done()
-		r.Client.SendMessage(ctx, msg, server)
+		r.Client.SendMessage(msg, server)
 	}()
 
 	return nil

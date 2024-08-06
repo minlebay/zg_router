@@ -34,7 +34,7 @@ func NewClient(logger *zap.Logger, config *Config) *Client {
 	}
 }
 
-func (c *Client) StartClient(ctx context.Context) {
+func (c *Client) StartClient() {
 	go func() {
 		for _, server := range c.Config.ProcessingServersList {
 			grpcTarget := fmt.Sprintf("%s", server)
@@ -60,7 +60,7 @@ func (c *Client) StartClient(ctx context.Context) {
 	}()
 }
 
-func (c *Client) StopClient(ctx context.Context) {
+func (c *Client) StopClient() {
 	for _, conn := range c.ConnectionPool {
 		conn.Close()
 	}
@@ -69,7 +69,7 @@ func (c *Client) StopClient(ctx context.Context) {
 	c.Logger.Info("Client stopped")
 }
 
-func (c *Client) SendMessage(ctx context.Context, msg *message.Message, server string) {
+func (c *Client) SendMessage(msg *message.Message, server string) {
 
 	if srv, ok := c.GrpcClientPool[server]; !ok {
 		c.Logger.Error("server not found")
